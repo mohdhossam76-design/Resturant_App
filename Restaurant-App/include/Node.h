@@ -1,46 +1,22 @@
-#ifndef _NODE
-#define _NODE
+#pragma once
 
-//First let's declare a single node in the list
-template<typename T>
-class Node
-{
-private :
-	T item;	// A data item (can be any complex sturcture)
-	Node<T>* next;	// Pointer to next node
-public :
+template <typename T>
+class Node {
+private:
+    T item;
+    Node<T>* next;
+    int priority; // تأكد من وجود هذا المتغير
 
-	Node( ) //default constructor
-	{
-		next= nullptr;
-	} 
+public:
+    Node() : next(nullptr), priority(0) {}
+    Node(const T& r_Item) : item(r_Item), next(nullptr), priority(0) {}
 
-	Node( T newItem) //non-default constructor
-	{
-		item = newItem;
-		next= nullptr;
+    void setItem(const T& r_Item) { item = r_Item; }
+    void setNext(Node<T>* nextNodePtr) { next = nextNodePtr; }
+    T getItem() const { return item; }
+    Node<T>* getNext() const { return next; }
 
-	}
-
-	void setItem( T newItem)
-	{
-		item = newItem;
-	} // end setItem
-
-	void setNext(Node<T>* nextNodePtr)
-	{
-	next = nextNodePtr;
-	} // end setNext
-
-	T getItem() const
-	{
-		return item;
-	} // end getItem
-
-	Node<T>* getNext() const
-	{
-		return next;
-	}
-}; // end Node
-
-#endif	
+    // تأكد من وجود هاتين الدالتين
+    void setPriority(int p) { priority = p; }
+    int getPriority() const { return priority; }
+};

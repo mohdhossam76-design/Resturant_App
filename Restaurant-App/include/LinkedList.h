@@ -1,125 +1,208 @@
-#ifndef _LINKEDLIST
-#define _LINKEDLIST
-
+#pragma once
 #include "Node.h"
+#include <iostream>
+using namespace std;
 
 template <typename T>
 class LinkedList
 {
 private:
-	Node<T> *Head;	//Pointer to the head of the list
-	//You can add tail pointer too (depending on your problem)
+	Node<T>* Head;
+	int count;
+
 public:
-
-
 	LinkedList()
 	{
 		Head = nullptr;
+		count = 0;
 	}
 
-	//List is being desturcted ==> delete all items in the list
 	~LinkedList()
 	{
-		DeleteAll(); 
+		DeleteAll();
 	}
-	////////////////////////////////////////////////////////////////////////
-	/*
-	* Function: PrintList.
-	* prints the values of all nodes in a linked list.
-	*/
-	void PrintList()	const
-	{		
-		cout<<"\nprinting list contents:\n\n";
-		Node<T> *p = Head;
 
-		while(p)
+	int getCount() const
+	{
+		return count;
+	}
+
+	void print() const
+	{
+		if (!Head) return;
+		Node<T>* p = Head;
+		while (p)
 		{
-			cout << "[ " << p->getItem() << " ]";
-			cout << "--->";
+			cout << p->getItem();
+			p = p->getNext();
+			if (p) cout << ", ";
+		}
+	}
+
+	void PrintList() const
+	{
+		Node<T>* p = Head;
+		while (p)
+		{
+			cout << "[ " << p->getItem() << " ]" << "--->";
 			p = p->getNext();
 		}
 		cout << "NULL\n";
 	}
-	////////////////////////////////////////////////////////////////////////
-	/*
-	* Function: InsertBeg.
-	* Creates a new node and adds it to the beginning of a linked list.
-	* 
-	* Parameters:
-	*	- data : The value to be stored in the new node.
-	*/
-	void InsertBeg(const T &data)
+
+	void InsertBeg(const T& data)
 	{
-		Node<T> *R = new Node<T>(data);
+		Node<T>* R = new Node<T>(data);
 		R->setNext(Head);
 		Head = R;
-
+		count++;
 	}
-	////////////////////////////////////////////////////////////////////////
-	/*
-	* Function: DeleteAll.
-	* Deletes all nodes of the list.
-	*/
+
 	void DeleteAll()
 	{
-		Node<T> *P = Head;
+		Node<T>* P = Head;
 		while (Head)
 		{
 			P = Head->getNext();
 			delete Head;
 			Head = P;
 		}
+		count = 0;
 	}
 
+	void InsertEnd(const T& data)
+	{
+		if (!Head) {
+			InsertBeg(data);
+			return;
+		}
+		Node<T>* p = Head;
+		while (p->getNext()) {
+			p = p->getNext();
+		}
+		Node<T>* newNode = new Node<T>(data);
+		p->setNext(newNode);
+		count++;
+	}
 
+	bool Find(const T& Key)
+	{
+		Node<T>* p = Head;
+		while (p) {
+			if (p->getItem() == Key) return true;
+			p = p->getNext();
+		}
+		return false;
+	}
 
-	////////////////     Requirements   ///////////////////
-	//
-	// Implement the following member functions
+	int CountOccurance(const T& value)
+	{
+		int occ = 0;
+		Node<T>* p = Head;
+		while (p) {
+			if (p->getItem() == value) occ++;
+			p = p->getNext();
+		}
+		return occ;
+	}
 
+	void DeleteFirst()
+	{
+		if (!Head) return;
+		Node<T>* p = Head;
+		Head = Head->getNext();
+		delete p;
+		count--;
+	}
 
-	//[1]InsertEnd 
-	//inserts a new node at end if the list
-	void InsertEnd(const T &data);	
+	void DeleteLast()
+	{
+		if (!Head) return;
+		if (!Head->getNext()) {
+			delete Head;
+			Head = nullptr;
+			count--;
+			return;
+		}
+		Node<T>* p = Head;
+		while (p->getNext()->getNext()) {
+			p = p->getNext();
+		}
+		delete p->getNext();
+		p->setNext(nullptr);
+		count--;
+	}
 
-	//[2]Find 
-	//searches for a given value in the list, returns true if found; false otherwise.
-	bool Find(int Key);
+	bool DeleteNode(const T& value)
+	{
+		if (!Head) return false;
+		if (Head->getItem() == value) {
+			DeleteFirst();
+			return true;
+		}
+		Node<T>* p = Head;
+		while (p->getNext()) {
+			if (p->getNext()->getItem() == value) {
+				Node<T>* temp = p->getNext();
+				p->setNext(temp->getNext());
+				delete temp;
+				count--;
+				return true;
+			}
+			p = p->getNext();
+		}
+		return false;
+	}
 
-	//[3]CountOccurance
-	//returns how many times a certain value appeared in the list
-	int CountOccurance(const T &value);
+	bool DeleteNodes(const T& value)
+	{
+		bool deleted = false;
+		while (Head && Head->getItem() == value) {
+			DeleteFirst();
+			deleted = true;
+		}
+		if (!Head) return deleted;
+		Node<T>* p = Head;
+		while (p->getNext()) {
+			if (p->getNext()->getItem() == value) {
+				Node<T>* temp = p->getNext();
+				p->setNext(temp->getNext());
+				delete temp;
+				count--;
+				deleted = true;
+			}
+			else {
+				p = p->getNext();
+			}
+		}
+		return deleted;
+	}
 
-	//[4] DeleteFirst
-	//Deletes the first node in the list
-	void DeleteFirst();
+	void Merge(const LinkedList& L)
+	{
+		if (!Head) {
+			Head = L.Head;
+		}
+		else {
+			Node<T>* p = Head;
+			while (p->getNext()) {
+				p = p->getNext();
+			}
+			p->setNext(L.Head);
+		}
+	}
 
-
-	//[5] DeleteLast
-	//Deletes the last node in the list
-	void DeleteLast();
-
-	//[6] DeleteNode
-	//deletes the first node with the given value (if found) and returns true
-	//if not found, returns false
-	//Note: List is not sorted
-	bool DeleteNode(const T &value);	
-
-	//[7] DeleteNodes
-	//deletes ALL node with the given value (if found) and returns true
-	//if not found, returns false
-	//Note: List is not sorted
-	bool DeleteNodes(const T &value);	
-
-	//[8]Merge
-	//Merges the current list to another list L by making the last Node in the current list 
-	//point to the first Node in list L
-	void Merge(const LinkedList& L);
-
-	//[9] Reverse
-	//Reverses the linked list (without allocating any new Nodes)
-	void Reverse();
-		
+	void Reverse()
+	{
+		Node<T>* prev = nullptr;
+		Node<T>* current = Head;
+		Node<T>* next = nullptr;
+		while (current) {
+			next = current->getNext();
+			current->setNext(prev);
+			prev = current;
+			current = next;
+		}
+		Head = prev;
+	}
 };
-
-#endif	
